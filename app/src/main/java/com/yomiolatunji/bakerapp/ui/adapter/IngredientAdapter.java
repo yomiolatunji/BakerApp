@@ -1,18 +1,14 @@
 package com.yomiolatunji.bakerapp.ui.adapter;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.yomiolatunji.bakerapp.ItemDetailActivity;
 import com.yomiolatunji.bakerapp.R;
 import com.yomiolatunji.bakerapp.data.entities.RecipeIngredient;
-import com.yomiolatunji.bakerapp.ui.ItemDetailFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +43,8 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.In
 //            public void onClick(View v) {
 //                if (mTwoPane) {
 //                    Bundle arguments = new Bundle();
-//                    arguments.putString(ItemDetailFragment.ARG_ITEM_ID, holder.mItem.id);
-//                    ItemDetailFragment fragment = new ItemDetailFragment();
+//                    arguments.putString(RecipeStepFragment.ARG_ITEM_ID, holder.mItem.id);
+//                    RecipeStepFragment fragment = new RecipeStepFragment();
 //                    fragment.setArguments(arguments);
 //                    getSupportFragmentManager().beginTransaction()
 //                            .replace(R.id.item_detail_container, fragment)
@@ -56,7 +52,7 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.In
 //                } else {
 //                    Context context = v.getContext();
 //                    Intent intent = new Intent(context, ItemDetailActivity.class);
-//                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+//                    intent.putExtra(RecipeStepFragment.ARG_ITEM_ID, holder.mItem.id);
 //
 //                    context.startActivity(intent);
 //                }

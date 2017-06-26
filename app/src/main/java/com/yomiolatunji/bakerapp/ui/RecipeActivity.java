@@ -1,6 +1,5 @@
 package com.yomiolatunji.bakerapp.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,7 +9,6 @@ import android.support.v7.widget.Toolbar;
 
 import com.yomiolatunji.bakerapp.R;
 import com.yomiolatunji.bakerapp.data.entities.Recipe;
-import com.yomiolatunji.bakerapp.data.entities.RecipeStep;
 import com.yomiolatunji.bakerapp.ui.adapter.IngredientAdapter;
 import com.yomiolatunji.bakerapp.ui.adapter.StepsAdapter;
 
@@ -61,18 +59,20 @@ public class RecipeActivity extends AppCompatActivity {
 
         StepsAdapter stepsAdapter=new StepsAdapter(RecipeActivity.this, new StepsAdapter.OnClickStepListener() {
             @Override
-            public void onClick(RecipeStep step) {
+            public void onClick(int position) {
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putParcelable(ItemDetailFragment.ARG_ITEM_ID, step);
-                    ItemDetailFragment fragment = new ItemDetailFragment();
+                    arguments.putParcelable(RecipeStepFragment.ARG_RECIPE, recipe);
+                    arguments.putInt(RecipeStepFragment.ARG_STEP_POS, position);
+                    RecipeStepFragment fragment = new RecipeStepFragment();
                     fragment.setArguments(arguments);
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.item_detail_container, fragment)
                             .commit();
                 } else {
                     Intent intent = new Intent(RecipeActivity.this, RecipeStepActivity.class);
-                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, step);
+                    intent.putExtra(RecipeStepFragment.ARG_RECIPE, recipe);
+                    intent.putExtra(RecipeStepFragment.ARG_STEP_POS, position);
 
                     startActivity(intent);
                 }

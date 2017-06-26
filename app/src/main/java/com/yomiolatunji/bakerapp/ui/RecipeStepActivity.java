@@ -2,17 +2,12 @@ package com.yomiolatunji.bakerapp.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import com.yomiolatunji.bakerapp.R;
-import com.yomiolatunji.bakerapp.ui.ItemDetailFragment;
-import com.yomiolatunji.bakerapp.ui.RecipeActivity;
 
 /**
  * An activity representing a single Item detail screen. This
@@ -48,9 +43,11 @@ public class RecipeStepActivity extends AppCompatActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(ItemDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(ItemDetailFragment.ARG_ITEM_ID));
-            ItemDetailFragment fragment = new ItemDetailFragment();
+            arguments.putInt(RecipeStepFragment.ARG_STEP_POS,
+                    getIntent().getIntExtra(RecipeStepFragment.ARG_STEP_POS,0));
+            arguments.putParcelable(RecipeStepFragment.ARG_RECIPE,
+                    getIntent().getParcelableExtra(RecipeStepFragment.ARG_RECIPE));
+            RecipeStepFragment fragment = new RecipeStepFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.item_detail_container, fragment)
@@ -62,13 +59,7 @@ public class RecipeStepActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            // This ID represents the Home or Up button. In the case of this
-            // activity, the Up button is shown. For
-            // more details, see the Navigation pattern on Android Design:
-            //
-            // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-            //
-            navigateUpTo(new Intent(this, RecipeActivity.class));
+            onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);
