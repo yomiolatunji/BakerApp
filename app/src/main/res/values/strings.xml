@@ -5,4 +5,8 @@
     <string name="title_item_list">Items</string>
     <string name="ingredients">Ingredients</string>
     <string name="steps">Steps</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="last_step_reached">Last step reached!</string>
+    <string name="already_at_first_step">Already at the first step!</string>
 </resources>

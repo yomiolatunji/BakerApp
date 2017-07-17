@@ -16,8 +16,9 @@
             android:id="@+id/ingredient"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-            tools:text="Nutella or other chocolate-hazelnut spread" />
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
+            tools:text="Nutella or other chocolate-hazelnut spread"
+            android:textSize="18sp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
