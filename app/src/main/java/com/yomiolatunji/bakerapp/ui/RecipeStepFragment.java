@@ -63,7 +63,6 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
     private SimpleExoPlayerView mPlayerView;
     private SimpleExoPlayer mExoPlayer;
     private PlaybackStateCompat.Builder mStateBuilder;
-    private ImageView stepImage;
     private TextView recipeStep;
     private Button next;
     private Button previous;
@@ -118,7 +117,7 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
                                 PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
                                 PlaybackStateCompat.ACTION_PLAY_PAUSE);
 
-        //mMediaSession.setPlaybackState(mStateBuilder.build());
+        mMediaSession.setPlaybackState(mStateBuilder.build());
 
 
         // MySessionCallback has methods that handle callbacks from a media controller.
@@ -154,7 +153,6 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_recipe_step, container, false);
         mPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.playerView);
-        stepImage = (ImageView) rootView.findViewById(R.id.stepImage);
         recipeStep = (TextView) rootView.findViewById(R.id.recipeStep);
         next = (Button) rootView.findViewById(R.id.next);
         previous = (Button) rootView.findViewById(R.id.previous);
@@ -167,13 +165,6 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
                     (getResources(), R.drawable.ic_play_arrow));
             initializeMediaSession();
             initializePlayer(Uri.parse(currentStep.getVideoUrl()));
-
-        }
-        if (TextUtils.isEmpty(currentStep.getVideoUrl()) && !TextUtils.isEmpty(currentStep.getThumbnailUrl())) {
-            stepImage.setVisibility(View.VISIBLE);
-            Picasso.with(getActivity()).load(currentStep.getThumbnailUrl()).into(stepImage);
-        } else {
-            stepImage.setVisibility(View.GONE);
 
         }
         if (recipeStep != null)
@@ -238,7 +229,8 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
         super.onStop();
 
         releasePlayer();
-        mMediaSession.setActive(false);
+        if (mMediaSession != null)
+            mMediaSession.setActive(false);
     }
 
     private void releasePlayer() {
