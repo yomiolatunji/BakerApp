@@ -4,21 +4,25 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -34,10 +38,10 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
-import com.squareup.picasso.Picasso;
 import com.yomiolatunji.bakerapp.R;
 import com.yomiolatunji.bakerapp.data.entities.Recipe;
 import com.yomiolatunji.bakerapp.data.entities.RecipeStep;
@@ -67,6 +71,7 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
     private Button next;
     private Button previous;
     private ChangeStepListener mChangeStepListener;
+    boolean isTwoPane;
 
     public RecipeStepFragment() {
     }
@@ -121,7 +126,7 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
 
 
         // MySessionCallback has methods that handle callbacks from a media controller.
-        mMediaSession.setCallback(new MySessionCallback());
+        mMediaSession.setCallback(new RecipeStepFragment.MySessionCallback());
 
         // Start the Media Session since the activity is active.
         mMediaSession.setActive(true);
@@ -135,7 +140,7 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
             LoadControl loadControl = new DefaultLoadControl();
             mExoPlayer = ExoPlayerFactory.newSimpleInstance(getActivity(), trackSelector, loadControl);
             mPlayerView.setPlayer(mExoPlayer);
-
+            mPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
             // Set the ExoPlayer.EventListener to this activity.
             mExoPlayer.addListener(this);
 
@@ -152,10 +157,16 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_recipe_step, container, false);
-        mPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.playerView);
-        recipeStep = (TextView) rootView.findViewById(R.id.recipeStep);
-        next = (Button) rootView.findViewById(R.id.next);
-        previous = (Button) rootView.findViewById(R.id.previous);
+        return rootView;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mPlayerView = (SimpleExoPlayerView) view.findViewById(R.id.playerView);
+        recipeStep = (TextView) view.findViewById(R.id.recipeStep);
+        next = (Button) view.findViewById(R.id.next);
+        previous = (Button) view.findViewById(R.id.previous);
 
         if (TextUtils.isEmpty(currentStep.getVideoUrl())) {
             mPlayerView.setVisibility(View.GONE);
@@ -167,8 +178,9 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
             initializePlayer(Uri.parse(currentStep.getVideoUrl()));
 
         }
-        if (recipeStep != null)
-            recipeStep.setText(currentStep.getDescription());
+        Toast.makeText(getActivity(), currentStep.getDescription(), Toast.LENGTH_SHORT).show();
+        //if (recipeStep != null)
+        recipeStep.setText(currentStep.getDescription());
         if (next != null)
             next.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -183,7 +195,8 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
                     mChangeStepListener.onPrevious(currentPosition);
                 }
             });
-        return rootView;
+
+
     }
 
     @Override

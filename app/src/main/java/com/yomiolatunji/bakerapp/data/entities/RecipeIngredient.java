@@ -23,6 +23,15 @@ public class RecipeIngredient implements Parcelable {
     public RecipeIngredient() {
     }
 
+    public int getRecipeId() {
+        return recipeId;
+    }
+
+    public void setRecipeId(int recipeId) {
+        this.recipeId = recipeId;
+    }
+
+    private int recipeId;
     private int quantity;
     private String measure;
     private String ingredient;

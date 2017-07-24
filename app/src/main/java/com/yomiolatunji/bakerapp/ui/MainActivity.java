@@ -12,11 +12,11 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.yomiolatunji.bakerapp.R;
-import com.yomiolatunji.bakerapp.ui.adapter.RecipeAdapter;
 import com.yomiolatunji.bakerapp.data.DataLoadingCallback;
 import com.yomiolatunji.bakerapp.data.NetworkUtils;
 import com.yomiolatunji.bakerapp.data.dataSources.BakerDataSource;
 import com.yomiolatunji.bakerapp.data.entities.Recipe;
+import com.yomiolatunji.bakerapp.ui.adapter.RecipeAdapter;
 
 import java.util.List;
 
@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements DataLoadingCallba
         if (NetworkUtils.isNetworkAvailable(MainActivity.this)) {
             getData(bakerDataSource);
         } else {
+            getOfflineData(bakerDataSource);
             recipesRecyclerView.setVisibility(View.GONE);
             loadingBar.setVisibility(View.GONE);
             noConnectionView.setVisibility(View.VISIBLE);
@@ -58,6 +59,14 @@ public class MainActivity extends AppCompatActivity implements DataLoadingCallba
             recipesRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         }
 
+    }
+
+    private void getOfflineData(BakerDataSource bakerDataSource) {
+        loadingBar.setVisibility(View.VISIBLE);
+        recipesRecyclerView.setVisibility(View.GONE);
+        noConnectionView.setVisibility(View.GONE);
+        adapter.clear();
+        bakerDataSource.getOfflineData();
     }
 
     private void getData(BakerDataSource bakerDataSource) {
@@ -82,4 +91,6 @@ public class MainActivity extends AppCompatActivity implements DataLoadingCallba
     public void onFailure(String message) {
         Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
     }
+
+
 }

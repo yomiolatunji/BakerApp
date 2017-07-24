@@ -11,26 +11,36 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
+        <!--<TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/spacing_normal"
             android:text="@string/ingredients"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Title" />
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/item_recipe_ingredient"
+-->
+        <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layoutManager="LinearLayoutManager"
-            tools:listitem="@layout/item_ingredient" />
+            android:layout_margin="@dimen/spacing_normal"
+            app:cardBackgroundColor="@color/colorPrimaryLight"
+            android:background="@color/colorPrimaryLight">
 
-        <TextView
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/item_recipe_ingredient"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="LinearLayoutManager"
+                tools:listitem="@layout/item_ingredient" />
+        </android.support.v7.widget.CardView>
+
+
+        <!--<TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/spacing_normal"
             android:text="@string/steps"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Title" />
+        -->
         <android.support.v7.widget.RecyclerView
             android:id="@+id/item_recipe_step"
             android:layout_width="match_parent"

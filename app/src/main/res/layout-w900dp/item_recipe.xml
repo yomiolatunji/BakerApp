@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
-            app:srcCompat="@drawable/ic_featured_play_list" />
+            app:srcCompat="@drawable/ic_baking_tools" />
 
         <TextView
             android:id="@+id/recipeName"

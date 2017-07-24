@@ -20,20 +20,27 @@ public class RecipeStep implements Parcelable {
         }
     };
     private int id;
+    private int recipeId;
     private String shortDescription;
     private String description;
     private String videoUrl;
     private String thumbnailUrl;
-
     public RecipeStep() {
     }
-
     protected RecipeStep(Parcel in) {
         id = in.readInt();
         shortDescription = in.readString();
         description = in.readString();
         videoUrl = in.readString();
         thumbnailUrl = in.readString();
+    }
+
+    public int getRecipeId() {
+        return recipeId;
+    }
+
+    public void setRecipeId(int recipeId) {
+        this.recipeId = recipeId;
     }
 
     public int getId() {

@@ -20,7 +20,7 @@
             android:layout_gravity="center"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
-            app:srcCompat="@drawable/ic_featured_play_list" />
+            app:srcCompat="@drawable/ic_baking_tools" />
 
         <LinearLayout
             android:layout_width="0dp"
