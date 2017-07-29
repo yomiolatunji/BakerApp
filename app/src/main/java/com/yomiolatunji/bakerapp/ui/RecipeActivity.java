@@ -2,21 +2,24 @@ package com.yomiolatunji.bakerapp.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.test.espresso.IdlingResource;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.widget.TextView;
 
-import com.yomiolatunji.bakerapp.SimpleIdlingResource;
 import com.yomiolatunji.bakerapp.R;
+import com.yomiolatunji.bakerapp.SimpleIdlingResource;
 import com.yomiolatunji.bakerapp.data.DataLoadingCallback;
 import com.yomiolatunji.bakerapp.data.dataSources.BakerDataSource;
 import com.yomiolatunji.bakerapp.data.entities.Recipe;
-import com.yomiolatunji.bakerapp.ui.adapter.IngredientAdapter;
+import com.yomiolatunji.bakerapp.data.entities.RecipeIngredient;
 import com.yomiolatunji.bakerapp.ui.adapter.StepsAdapter;
 
 import java.util.List;
@@ -30,15 +33,16 @@ import java.util.List;
  * item details side-by-side using two vertical panes.
  */
 public class RecipeActivity extends AppCompatActivity implements DataLoadingCallback<List<Recipe>> {
-
     public static final String RECIPE_KEY = "recipe_key";
+    private static final String BUNDLE_RECYCLER_LAYOUT = "classname.recycler.layout";
     private boolean mTwoPane;
-    private RecyclerView ingredientRecyclerView;
+    private TextView ingredientTextView;
     private RecyclerView stepRecyclerView;
     private Recipe recipe = null;
 
     @Nullable
     private SimpleIdlingResource mIdlingResource;
+    private NestedScrollView scrollView;
 
     /**
      * Only called from test, creates and returns a new {@link SimpleIdlingResource}.
@@ -63,10 +67,10 @@ public class RecipeActivity extends AppCompatActivity implements DataLoadingCall
 
         getIdlingResource();
 
-        ingredientRecyclerView = (RecyclerView) findViewById(R.id.item_recipe_ingredient);
+        ingredientTextView = (TextView) findViewById(R.id.item_recipe_ingredient);
         stepRecyclerView = (RecyclerView) findViewById(R.id.item_recipe_step);
+        scrollView= (NestedScrollView) findViewById(R.id.container);
 
-        ingredientRecyclerView.setNestedScrollingEnabled(false);
         stepRecyclerView.setNestedScrollingEnabled(false);
         Intent intent = getIntent();
         if (intent.hasExtra(RECIPE_KEY)) {
@@ -79,18 +83,27 @@ public class RecipeActivity extends AppCompatActivity implements DataLoadingCall
             mTwoPane = true;
         }
 
-        ingredientRecyclerView.setLayoutManager(new LinearLayoutManager(RecipeActivity.this));
+        //ingredientTextView.setLayoutManager(new LinearLayoutManager(RecipeActivity.this));
         stepRecyclerView.setLayoutManager(new LinearLayoutManager(RecipeActivity.this));
         if (recipe != null)
             initializeAdapters();
 
     }
 
-    private void initializeAdapters() {
-        IngredientAdapter ingredientAdapter = new IngredientAdapter(RecipeActivity.this);
-        ingredientRecyclerView.setAdapter(ingredientAdapter);
-        ingredientAdapter.addAndResort(recipe.getIngredients());
+    private String getIngredientsString(List<RecipeIngredient> ingredients) {
+        String retString = "";
+        for (int i = 0; i < ingredients.size(); i++) {
+            RecipeIngredient ingredient = ingredients.get(i);
+            retString += (i + 1) + ". " + ingredient.getIngredient() + "(" + ingredient.getQuantity() + " " + ingredient.getMeasure() + ")\n";
+        }
+        return retString;
+    }
 
+    private void initializeAdapters() {
+//        IngredientAdapter ingredientAdapter = new IngredientAdapter(RecipeActivity.this);
+//        ingredientTextView.setAdapter(ingredientAdapter);
+//        ingredientAdapter.addAndResort(recipe.getIngredients());
+        ingredientTextView.setText(getIngredientsString(recipe.getIngredients()));
         StepsAdapter stepsAdapter = new StepsAdapter(RecipeActivity.this, new StepsAdapter.OnClickStepListener() {
             @Override
             public void onClick(int position) {
@@ -112,6 +125,30 @@ public class RecipeActivity extends AppCompatActivity implements DataLoadingCall
         stepsAdapter.addAndResort(recipe.getRecipeSteps());
     }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+//            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT);
+//            stepRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+            final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
+            if(position != null)
+                scrollView.post(new Runnable() {
+                    public void run() {
+                        scrollView.scrollTo(position[0], position[1]);
+                    }
+                });
+        }
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+//        outState.putParcelable(BUNDLE_RECYCLER_LAYOUT, stepRecyclerView.getLayoutManager().onSaveInstanceState());
+        outState.putIntArray("ARTICLE_SCROLL_POSITION",
+                new int[]{ scrollView.getScrollX(), scrollView.getScrollY()});
+    }
 
     @Override
     public void onResponse(List<Recipe> data) {

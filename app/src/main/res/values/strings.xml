@@ -11,4 +11,5 @@
     <string name="already_at_first_step">Already at the first step!</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
+    <string name="server_error">Error occur while getting Recipe from Server</string>
 </resources>

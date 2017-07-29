@@ -1,10 +1,12 @@
 package com.yomiolatunji.bakerapp.ui;
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.yomiolatunji.bakerapp.R;
@@ -19,6 +21,7 @@ import com.yomiolatunji.bakerapp.data.entities.Recipe;
 public class RecipeStepActivity extends AppCompatActivity implements RecipeStepFragment.ChangeStepListener {
 
     private Recipe recipe;
+    private View container;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +36,7 @@ public class RecipeStepActivity extends AppCompatActivity implements RecipeStepF
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        // savedInstanceState is non-null when there is fragment state
-        // saved from previous configurations of this activity
-        // (e.g. when rotating the screen from portrait to landscape).
-        // In this case, the fragment will automatically be re-added
-        // to its container so we don't need to manually add it.
-        // For more information, see the Fragments API guide at:
-        //
+    container=findViewById(R.id.item_detail_container);
         // http://developer.android.com/guide/components/fragments.html
         //
         if (savedInstanceState == null) {
@@ -79,7 +76,7 @@ public class RecipeStepActivity extends AppCompatActivity implements RecipeStepF
         if (currentPos < recipe.getRecipeSteps().size()-1) {
             initializeFragment(currentPos + 1);
         } else {
-            Toast.makeText(this, R.string.last_step_reached, Toast.LENGTH_SHORT).show();
+            Snackbar.make(container,R.string.last_step_reached,Snackbar.LENGTH_LONG).show();
         }
     }
 
@@ -88,7 +85,8 @@ public class RecipeStepActivity extends AppCompatActivity implements RecipeStepF
         if (currentPos > 0) {
             initializeFragment(currentPos - 1);
         } else {
-            Toast.makeText(this, R.string.already_at_first_step, Toast.LENGTH_SHORT).show();
+            Snackbar.make(container,R.string.already_at_first_step,Snackbar.LENGTH_LONG).show();
+            //Toast.makeText(this, R.string.already_at_first_step, Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -29,6 +30,7 @@ import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -71,6 +73,9 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
     private Button previous;
     private ChangeStepListener mChangeStepListener;
     private ImageView stepImage;
+    private int resumeWindow;
+    private long resumePosition;
+    private boolean needRetrySource;
 
     public RecipeStepFragment() {
     }
@@ -98,8 +103,7 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
             if (toolbar != null) {
                 toolbar.setTitle(currentStep.getShortDescription());
             }
-
-
+            clearResumePosition();
         }
     }
 
@@ -142,7 +146,8 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
 
     }
 
-    private void initializePlayer(Uri mediaUri) {
+    private void initializePlayer() {
+        Uri mediaUri = Uri.parse(currentStep.getVideoUrl());
         if (mExoPlayer == null) {
             // Create an instance of the ExoPlayer.
             TrackSelector trackSelector = new DefaultTrackSelector();
@@ -157,7 +162,13 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
             String userAgent = Util.getUserAgent(getActivity(), "BakerApp");
             MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
                     getActivity(), userAgent), new DefaultExtractorsFactory(), null, null);
-            mExoPlayer.prepare(mediaSource);
+            boolean haveResumePosition = resumeWindow != C.INDEX_UNSET;
+            if (haveResumePosition) {
+                mExoPlayer.seekTo(resumeWindow, resumePosition);
+            }
+            mExoPlayer.prepare(mediaSource, !haveResumePosition, false);
+            needRetrySource = false;
+
             mExoPlayer.setPlayWhenReady(true);
         }
     }
@@ -186,8 +197,8 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
             mPlayerView.setVisibility(View.VISIBLE);
             mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
                     (getResources(), R.drawable.ic_play_arrow));
-            initializeMediaSession();
-            initializePlayer(Uri.parse(currentStep.getVideoUrl()));
+//            initializeMediaSession();
+//            initializePlayer();
 
         }
         if (stepImage != null)
@@ -217,7 +228,16 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
 
 
     }
+    private void updateResumePosition() {
+        resumeWindow = mExoPlayer.getCurrentWindowIndex();
+        resumePosition = mExoPlayer.isCurrentWindowSeekable() ? Math.max(0, mExoPlayer.getCurrentPosition())
+                : C.TIME_UNSET;
+    }
 
+    private void clearResumePosition() {
+        resumeWindow = C.INDEX_UNSET;
+        resumePosition = C.TIME_UNSET;
+    }
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
 
@@ -248,31 +268,83 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
 
     @Override
     public void onPlayerError(ExoPlaybackException error) {
+        needRetrySource = true;
+        if (isBehindLiveWindow(error)) {
+            clearResumePosition();
+            initializePlayer();
+        } else {
+            updateResumePosition();
+        }
+    }
 
+   @Override
+    public void onPositionDiscontinuity() {
+        if (needRetrySource) {
+            // This will only occur if the user has performed a seek whilst in the error state. Update the
+            // resume position so that if the user then retries, playback will resume from the position to
+            // which they seeked.
+            updateResumePosition();
+        }
     }
 
     @Override
-    public void onPositionDiscontinuity() {
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23 && !TextUtils.isEmpty(currentStep.getVideoUrl())) {
+            initializeMediaSession();
+            initializePlayer();
+        }
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if ((Util.SDK_INT <= 23 || mExoPlayer == null) && !TextUtils.isEmpty(currentStep.getVideoUrl())) {
+            initializeMediaSession();
+            initializePlayer();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (Util.SDK_INT <= 23) {
+            releasePlayer();
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
-        releasePlayer();
-        if (mMediaSession != null)
-            mMediaSession.setActive(false);
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
     }
 
     private void releasePlayer() {
         if (mExoPlayer != null) {
+            updateResumePosition();
             mExoPlayer.stop();
             mExoPlayer.release();
             mExoPlayer = null;
         }
-    }
 
+        if (mMediaSession != null)
+            mMediaSession.setActive(false);
+    }
+    private static boolean isBehindLiveWindow(ExoPlaybackException e) {
+        if (e.type != ExoPlaybackException.TYPE_SOURCE) {
+            return false;
+        }
+        Throwable cause = e.getSourceException();
+        while (cause != null) {
+            if (cause instanceof BehindLiveWindowException) {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
+    }
     interface ChangeStepListener {
         void onNext(int currentPos);
 

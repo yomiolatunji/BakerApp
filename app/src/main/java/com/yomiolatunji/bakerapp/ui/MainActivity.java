@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.support.design.widget.Snackbar;
 import android.support.test.espresso.IdlingResource;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -102,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements DataLoadingCallba
         if (data != null && data.size() > 0) {
             adapter.addAndResort(data);
             recipesRecyclerView.setVisibility(View.VISIBLE);
+        }else{
+            Toast.makeText(MainActivity.this, R.string.server_error, Toast.LENGTH_SHORT).show();
         }
         loadingBar.setVisibility(View.GONE);
 
