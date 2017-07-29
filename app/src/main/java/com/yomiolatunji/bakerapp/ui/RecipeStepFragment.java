@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,15 +13,13 @@ import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -42,6 +39,7 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.squareup.picasso.Picasso;
 import com.yomiolatunji.bakerapp.R;
 import com.yomiolatunji.bakerapp.data.entities.Recipe;
 import com.yomiolatunji.bakerapp.data.entities.RecipeStep;
@@ -64,6 +62,7 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
     Recipe recipe;
     int currentPosition;
     RecipeStep currentStep;
+    boolean isTwoPane;
     private SimpleExoPlayerView mPlayerView;
     private SimpleExoPlayer mExoPlayer;
     private PlaybackStateCompat.Builder mStateBuilder;
@@ -71,9 +70,18 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
     private Button next;
     private Button previous;
     private ChangeStepListener mChangeStepListener;
-    boolean isTwoPane;
+    private ImageView stepImage;
 
     public RecipeStepFragment() {
+    }
+
+    public static RecipeStepFragment newInstance(Recipe recipe, int position) {
+        Bundle arguments = new Bundle();
+        arguments.putParcelable(ARG_RECIPE, recipe);
+        arguments.putInt(ARG_STEP_POS, position);
+        RecipeStepFragment fragment = new RecipeStepFragment();
+        fragment.setArguments(arguments);
+        return fragment;
     }
 
     @Override
@@ -83,6 +91,7 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
         if (getArguments().containsKey(ARG_STEP_POS)) {
             currentPosition = getArguments().getInt(ARG_STEP_POS);
             recipe = getArguments().getParcelable(ARG_RECIPE);
+            //if (currentPosition >= 0 && currentPosition < recipe.getRecipeSteps().size())
             currentStep = recipe.getRecipeSteps().get(currentPosition);
             Activity activity = this.getActivity();
             Toolbar toolbar = (Toolbar) activity.findViewById(R.id.detail_toolbar);
@@ -165,11 +174,14 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
         super.onViewCreated(view, savedInstanceState);
         mPlayerView = (SimpleExoPlayerView) view.findViewById(R.id.playerView);
         recipeStep = (TextView) view.findViewById(R.id.recipeStep);
+        stepImage = (ImageView) view.findViewById(R.id.stepImage);
         next = (Button) view.findViewById(R.id.next);
         previous = (Button) view.findViewById(R.id.previous);
 
         if (TextUtils.isEmpty(currentStep.getVideoUrl())) {
             mPlayerView.setVisibility(View.GONE);
+            if (stepImage != null)
+                stepImage.setVisibility(View.VISIBLE);
         } else {
             mPlayerView.setVisibility(View.VISIBLE);
             mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
@@ -178,9 +190,16 @@ public class RecipeStepFragment extends Fragment implements ExoPlayer.EventListe
             initializePlayer(Uri.parse(currentStep.getVideoUrl()));
 
         }
-        Toast.makeText(getActivity(), currentStep.getDescription(), Toast.LENGTH_SHORT).show();
-        //if (recipeStep != null)
-        recipeStep.setText(currentStep.getDescription());
+        if (stepImage != null)
+            if (TextUtils.isEmpty(currentStep.getThumbnailUrl())) {
+                stepImage.setVisibility(View.GONE);
+            } else {
+                stepImage.setVisibility(View.VISIBLE);
+                Picasso.with(getActivity()).load(currentStep.getThumbnailUrl()).into(stepImage);
+            }
+        //Toast.makeText(getActivity(), currentStep.getDescription(), Toast.LENGTH_SHORT).show();
+        if (recipeStep != null)
+            recipeStep.setText(currentStep.getDescription());
         if (next != null)
             next.setOnClickListener(new View.OnClickListener() {
                 @Override

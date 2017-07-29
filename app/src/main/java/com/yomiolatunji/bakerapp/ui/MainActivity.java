@@ -1,6 +1,10 @@
 package com.yomiolatunji.bakerapp.ui;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.yomiolatunji.bakerapp.R;
+import com.yomiolatunji.bakerapp.SimpleIdlingResource;
 import com.yomiolatunji.bakerapp.data.DataLoadingCallback;
 import com.yomiolatunji.bakerapp.data.NetworkUtils;
 import com.yomiolatunji.bakerapp.data.dataSources.BakerDataSource;
@@ -28,13 +33,28 @@ public class MainActivity extends AppCompatActivity implements DataLoadingCallba
     private RecipeAdapter adapter;
     private GridLayoutManager layoutManager;
     private boolean isLarge;
+    @Nullable
+    private SimpleIdlingResource mIdlingResource;
 
+    /**
+     * Only called from test, creates and returns a new {@link SimpleIdlingResource}.
+     */
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new SimpleIdlingResource();
+        }
+        return mIdlingResource;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        getIdlingResource();
 
         isLarge = getResources().getBoolean(R.bool.large_screen);
         recipesRecyclerView = (RecyclerView) findViewById(R.id.recipe_list);
@@ -66,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements DataLoadingCallba
         recipesRecyclerView.setVisibility(View.GONE);
         noConnectionView.setVisibility(View.GONE);
         adapter.clear();
-        bakerDataSource.getOfflineData();
+        bakerDataSource.getOfflineData(mIdlingResource);
     }
 
     private void getData(BakerDataSource bakerDataSource) {
@@ -74,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements DataLoadingCallba
         recipesRecyclerView.setVisibility(View.GONE);
         noConnectionView.setVisibility(View.GONE);
         adapter.clear();
-        bakerDataSource.getData();
+        bakerDataSource.getData(mIdlingResource);
     }
 
     @Override

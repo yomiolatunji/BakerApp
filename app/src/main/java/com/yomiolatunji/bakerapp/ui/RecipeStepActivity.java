@@ -76,7 +76,7 @@ public class RecipeStepActivity extends AppCompatActivity implements RecipeStepF
 
     @Override
     public void onNext(int currentPos) {
-        if (currentPos < recipe.getRecipeSteps().size()) {
+        if (currentPos < recipe.getRecipeSteps().size()-1) {
             initializeFragment(currentPos + 1);
         } else {
             Toast.makeText(this, R.string.last_step_reached, Toast.LENGTH_SHORT).show();

@@ -4,12 +4,14 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 
+import com.yomiolatunji.bakerapp.SimpleIdlingResource;
 import com.yomiolatunji.bakerapp.data.DataLoadingCallback;
 import com.yomiolatunji.bakerapp.data.NetworkUtils;
 import com.yomiolatunji.bakerapp.data.entities.Recipe;
@@ -86,6 +88,10 @@ public class BakerDataSource implements LoaderManager.LoaderCallbacks<List<Recip
             }
             //}
             loadingCallback.onResponse(data);
+
+            if (idlingResource != null) {
+                idlingResource.setIdleState(true);
+            }
         }
 
         private void getIngredientFromCursor(Cursor cursor, List<Recipe> recipes) {
@@ -142,19 +148,29 @@ public class BakerDataSource implements LoaderManager.LoaderCallbacks<List<Recip
 
         }
     };
+    @Nullable
+    private SimpleIdlingResource idlingResource;
 
     public BakerDataSource(AppCompatActivity context, DataLoadingCallback<List<Recipe>> loadingCallback) {
 
         mContext = context;
         this.loadingCallback = loadingCallback;
+
     }
 
-    public void getData() {
-
+    public void getData(@Nullable final SimpleIdlingResource idlingResource) {
+        this.idlingResource = idlingResource;
+        if (idlingResource != null) {
+            idlingResource.setIdleState(false);
+        }
         mContext.getSupportLoaderManager().initLoader(ID_RECIPE_LOADER, null, this);
     }
 
-    public void getOfflineData() {
+    public void getOfflineData(@Nullable final SimpleIdlingResource idlingResource) {
+        this.idlingResource = idlingResource;
+        if (idlingResource != null) {
+            idlingResource.setIdleState(false);
+        }
         mContext.getSupportLoaderManager().initLoader(ID_OFFLINE_RECIPE_LOADER, null, offlineLoaderCallbacks);
     }
 
@@ -246,6 +262,9 @@ public class BakerDataSource implements LoaderManager.LoaderCallbacks<List<Recip
 
         swapOfflineData(data);
         loadingCallback.onResponse(data);
+        if (idlingResource != null) {
+            idlingResource.setIdleState(true);
+        }
     }
 
     private void swapOfflineData(List<Recipe> data) {
