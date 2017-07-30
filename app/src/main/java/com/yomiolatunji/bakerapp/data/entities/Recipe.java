@@ -80,7 +80,24 @@ public class Recipe implements Parcelable {
     public void setIngredients(List<RecipeIngredient> ingredients) {
         this.ingredients = ingredients;
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        Recipe recipe = (Recipe) o;
+
+        //if (id != recipe.id) return false;
+        return name.equals(recipe.name);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + name.hashCode();
+        return result;
+    }
     public List<RecipeStep> getRecipeSteps() {
         return recipeSteps;
     }

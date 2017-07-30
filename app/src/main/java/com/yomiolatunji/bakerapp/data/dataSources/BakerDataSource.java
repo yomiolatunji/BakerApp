@@ -54,25 +54,25 @@ public class BakerDataSource implements LoaderManager.LoaderCallbacks<List<Recip
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             CursorLoader cursorLoader;
-            switch (id) {
-                case ID_OFFLINE_RECIPE_LOADER:
-                    Uri RECIPE_URI = BASE_URI.buildUpon().appendPath(PATH_RECIPES).build();
-                    cursorLoader = new CursorLoader(mContext, RECIPE_URI, null,
-                            null, null, null);
-                    break;
-                case ID_OFFLINE_INGREDIENT_LOADER:
-                    Uri INGREDIENT_URI = BASE_URI.buildUpon().appendPath(PATH_INGREDIENTS).build();
-                    cursorLoader = new CursorLoader(mContext, INGREDIENT_URI, null,
-                            null, null, null);
-                    break;
-                case ID_OFFLINE_STEP_LOADER:
-                    Uri STEP_URI = BASE_URI.buildUpon().appendPath(PATH_STEPS).build();
-                    cursorLoader = new CursorLoader(mContext, STEP_URI, null,
-                            null, null, null);
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Unknown id: " + String.valueOf(id));
-            }
+            Uri RECIPE_URI = BASE_URI.buildUpon().appendPath(PATH_RECIPES).build();
+            cursorLoader = new CursorLoader(mContext, RECIPE_URI, null,
+                    null, null, null);
+//            switch (id) {
+//                case ID_OFFLINE_RECIPE_LOADER:
+//                    break;
+//                case ID_OFFLINE_INGREDIENT_LOADER:
+//                    Uri INGREDIENT_URI = BASE_URI.buildUpon().appendPath(PATH_INGREDIENTS).build();
+//                    cursorLoader = new CursorLoader(mContext, INGREDIENT_URI, null,
+//                            null, null, null);
+//                    break;
+//                case ID_OFFLINE_STEP_LOADER:
+//                    Uri STEP_URI = BASE_URI.buildUpon().appendPath(PATH_STEPS).build();
+//                    cursorLoader = new CursorLoader(mContext, STEP_URI, null,
+//                            null, null, null);
+//                    break;
+//                default:
+//                    throw new UnsupportedOperationException("Unknown id: " + String.valueOf(id));
+//            }
             return cursorLoader;
         }
 
@@ -80,16 +80,14 @@ public class BakerDataSource implements LoaderManager.LoaderCallbacks<List<Recip
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             List<Recipe> data = new ArrayList<>();
 
-            //for (int i = 0; i < cursor.getCount(); i++) {
-            cursor.moveToFirst();
-            if (cursor.getColumnIndex(RecipeEntry.COLUMN_RECIPE_NAME) >= 0 && cursor.getColumnIndex(RecipeEntry.COLUMN_RECIPE_SERVINGS) >= 0) {
+//            cursor.moveToFirst();
+//            if (cursor.getColumnIndex(RecipeEntry.COLUMN_RECIPE_NAME) >= 0 && cursor.getColumnIndex(RecipeEntry.COLUMN_RECIPE_SERVINGS) >= 0) {
                 getRecipeFromCursor(cursor, data);
-            } else if (cursor.getColumnIndex(StepEntry.COLUMN_DESCRIPTION) >= 0 && cursor.getColumnIndex(StepEntry.COLUMN_SHORT_DESCRIPTION) >= 0) {
-                getStepFromCursor(cursor, data);
-            } else if (cursor.getColumnIndex(IngredientsEntry.COLUMN_INGREDIENT) >= 0 && cursor.getColumnIndex(IngredientsEntry.COLUMN_MEASURE) >= 0) {
-                getIngredientFromCursor(cursor, data);
-            }
-            //}
+//            } else if (cursor.getColumnIndex(StepEntry.COLUMN_DESCRIPTION) >= 0 && cursor.getColumnIndex(StepEntry.COLUMN_SHORT_DESCRIPTION) >= 0) {
+//                getStepFromCursor(cursor, data);
+//            } else if (cursor.getColumnIndex(IngredientsEntry.COLUMN_INGREDIENT) >= 0 && cursor.getColumnIndex(IngredientsEntry.COLUMN_MEASURE) >= 0) {
+//                getIngredientFromCursor(cursor, data);
+//            }
             loadingCallback.onResponse(data);
 
             if (idlingResource != null) {
@@ -142,8 +140,8 @@ public class BakerDataSource implements LoaderManager.LoaderCallbacks<List<Recip
                 recipe.setServings(cursor.getInt(cursor.getColumnIndex(RecipeEntry.COLUMN_RECIPE_SERVINGS)));
                 data.add(recipe);
             }
-            mContext.getSupportLoaderManager().initLoader(ID_OFFLINE_INGREDIENT_LOADER, null, offlineLoaderCallbacks);
-            mContext.getSupportLoaderManager().initLoader(ID_OFFLINE_STEP_LOADER, null, offlineLoaderCallbacks);
+//            mContext.getSupportLoaderManager().initLoader(ID_OFFLINE_INGREDIENT_LOADER, null, offlineLoaderCallbacks);
+//            mContext.getSupportLoaderManager().initLoader(ID_OFFLINE_STEP_LOADER, null, offlineLoaderCallbacks);
         }
 
         @Override
