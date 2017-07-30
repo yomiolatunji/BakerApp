@@ -65,6 +65,7 @@ public class RecipeWidgetService extends IntentService {
 
                 Uri ingredientUri = BASE_URI.buildUpon().appendPath(PATH_INGREDIENTS).appendPath("recipe").appendPath(String.valueOf(recipeId)).build();
                 Cursor ingCursor = getContentResolver().query(ingredientUri, null, null, null, null);
+                if(ingCursor!=null)
                 for (int i = 0; i < ingCursor.getCount(); i++) {
                     ingCursor.moveToPosition(i);
                     RecipeIngredient ingredient = new RecipeIngredient();
@@ -80,8 +81,6 @@ public class RecipeWidgetService extends IntentService {
 
             RecipeWidgetProvider.updateAppWidget(this, appWidgetManager, appWidgetId, ingredientStrings, recipeName);
         }
-        //appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_recipe_list);
-
 
     }
 
