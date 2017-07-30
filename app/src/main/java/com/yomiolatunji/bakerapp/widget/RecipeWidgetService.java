@@ -5,10 +5,10 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.yomiolatunji.bakerapp.R;
 import com.yomiolatunji.bakerapp.data.entities.RecipeIngredient;
@@ -40,41 +40,49 @@ public class RecipeWidgetService extends IntentService {
     }
 
     public void handleUpdateRecipeWidgets() {
-        Uri recipeUri = BASE_URI.buildUpon().appendPath(PATH_RECIPES).build();
-        Cursor cursor = getContentResolver().query(recipeUri, null, null, null, null);
-        int recipeId = 0;
-        String recipeName = null;
-        if (cursor != null && cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            recipeId = cursor.getInt(cursor.getColumnIndex(RecipeContract.RecipeEntry._ID));
-            recipeName = cursor.getString(cursor.getColumnIndex(RecipeContract.RecipeEntry.COLUMN_RECIPE_NAME));
-            Log.i(TAG, "cursor.getCount: " + cursor.getCount());
-            cursor.close();
-        }
-        //List<RecipeIngredient> ingredients = new ArrayList<>();
-        List<String> ingredientStrings=new ArrayList<>();
-        if (recipeId > 0) {
 
-            Uri ingredientUri = BASE_URI.buildUpon().appendPath(PATH_INGREDIENTS).appendPath("recipe").appendPath(String.valueOf(recipeId)).build();
-            Cursor ingCursor = getContentResolver().query(ingredientUri, null, null, null, null);
-            for (int i = 0; i < cursor.getCount(); i++) {
-                ingCursor.moveToPosition(i);
-                RecipeIngredient ingredient = new RecipeIngredient();
-                ingredient.setIngredient(ingCursor.getString(ingCursor.getColumnIndex(RecipeContract.IngredientsEntry.COLUMN_INGREDIENT)));
-                ingredient.setQuantity(ingCursor.getInt(ingCursor.getColumnIndex(RecipeContract.IngredientsEntry.COLUMN_QUANTITY)));
-                ingredient.setMeasure(ingCursor.getString(ingCursor.getColumnIndex(RecipeContract.IngredientsEntry.COLUMN_MEASURE)));
-                //ingredients.add(ingredient);
-                String ing=(i+1)+". "+ingredient.getIngredient()+"("+ingredient.getQuantity()+" "+ingredient.getMeasure()+")";
-                ingredientStrings.add(ing);
-            }
-
-        }
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(this, RecipeWidgetProvider.class));
+        SharedPreferences sharedPreferences = getSharedPreferences
+                (getString(R.string.recipe_key), Context.MODE_PRIVATE);
 
+        for (int appWidgetId : appWidgetIds) {
+            int recipeId = sharedPreferences.getInt(String.valueOf(appWidgetId), 0);
+            Uri recipeUri = BASE_URI.buildUpon().appendPath(PATH_RECIPES).appendPath(String.valueOf(recipeId)).build();
+            Cursor cursor = getContentResolver().query(recipeUri, null, null, null, null);
+
+            String recipeName = null;
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                //recipeId = cursor.getInt(cursor.getColumnIndex(RecipeContract.RecipeEntry._ID));
+                recipeName = cursor.getString(cursor.getColumnIndex(RecipeContract.RecipeEntry.COLUMN_RECIPE_NAME));
+                //Log.i(TAG, "cursor.getCount: " + cursor.getCount());
+                cursor.close();
+            }
+            //List<RecipeIngredient> ingredients = new ArrayList<>();
+            List<String> ingredientStrings = new ArrayList<>();
+            if (recipeId > 0) {
+
+                Uri ingredientUri = BASE_URI.buildUpon().appendPath(PATH_INGREDIENTS).appendPath("recipe").appendPath(String.valueOf(recipeId)).build();
+                Cursor ingCursor = getContentResolver().query(ingredientUri, null, null, null, null);
+                for (int i = 0; i < ingCursor.getCount(); i++) {
+                    ingCursor.moveToPosition(i);
+                    RecipeIngredient ingredient = new RecipeIngredient();
+                    ingredient.setIngredient(ingCursor.getString(ingCursor.getColumnIndex(RecipeContract.IngredientsEntry.COLUMN_INGREDIENT)));
+                    ingredient.setQuantity(ingCursor.getInt(ingCursor.getColumnIndex(RecipeContract.IngredientsEntry.COLUMN_QUANTITY)));
+                    ingredient.setMeasure(ingCursor.getString(ingCursor.getColumnIndex(RecipeContract.IngredientsEntry.COLUMN_MEASURE)));
+                    //ingredients.add(ingredient);
+                    String ing = (i + 1) + ". " + ingredient.getIngredient() + "(" + ingredient.getQuantity() + " " + ingredient.getMeasure() + ")";
+                    ingredientStrings.add(ing);
+                }
+                ingCursor.close();
+            }
+
+            RecipeWidgetProvider.updateAppWidget(this, appWidgetManager, appWidgetId, ingredientStrings, recipeName);
+        }
         //appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_recipe_list);
 
-        RecipeWidgetProvider.updateAppWidgets(this, appWidgetManager, appWidgetIds, ingredientStrings, recipeName);
+
     }
 
     @Override

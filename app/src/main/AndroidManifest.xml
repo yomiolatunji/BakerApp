@@ -15,7 +15,11 @@
         <activity
             android:name=".ui.RecipeActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.yomiolatunji.bakerapp.ui.MainActivity" />
+        </activity>
         <activity
             android:name=".ui.RecipeStepActivity"
             android:label="Recipe Step"
@@ -60,7 +64,13 @@
         <provider
             android:name=".data.provider.RecipeProvider"
             android:authorities="com.yomiolatunji.bakerapp"
-            android:exported="true"/>
+            android:exported="true" />
+
+        <activity android:name=".ui.FavouriteRecipeWidgetConfiguration">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

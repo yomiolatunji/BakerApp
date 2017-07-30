@@ -11,6 +11,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 
+import com.yomiolatunji.bakerapp.R;
 import com.yomiolatunji.bakerapp.SimpleIdlingResource;
 import com.yomiolatunji.bakerapp.data.DataLoadingCallback;
 import com.yomiolatunji.bakerapp.data.NetworkUtils;
@@ -47,6 +48,8 @@ public class BakerDataSource implements LoaderManager.LoaderCallbacks<List<Recip
     private String Url = "https://d17h27t6h515a5.cloudfront.net/topher/2017/May/59121517_baking/baking.json";
     private AppCompatActivity mContext;
     private DataLoadingCallback<List<Recipe>> loadingCallback;
+    @Nullable
+    private SimpleIdlingResource idlingResource;
     LoaderManager.LoaderCallbacks<Cursor> offlineLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -148,8 +151,6 @@ public class BakerDataSource implements LoaderManager.LoaderCallbacks<List<Recip
 
         }
     };
-    @Nullable
-    private SimpleIdlingResource idlingResource;
 
     public BakerDataSource(AppCompatActivity context, DataLoadingCallback<List<Recipe>> loadingCallback) {
 
@@ -189,7 +190,7 @@ public class BakerDataSource implements LoaderManager.LoaderCallbacks<List<Recip
                     String response = NetworkUtils.newInstance(mContext).get(Url);
                     JSONArray recipeJsonArray = new JSONArray(response);
                     if (recipeJsonArray.length() == 0) {
-                        loadingCallback.onFailure("Empty list");
+                        loadingCallback.onFailure(mContext.getString(R.string.empty_list));
                         return null;
                     }
                     for (int i = 0; i < recipeJsonArray.length(); i++) {
@@ -271,17 +272,20 @@ public class BakerDataSource implements LoaderManager.LoaderCallbacks<List<Recip
         Uri RecipeUri = RecipeContract.BASE_URI.buildUpon().appendPath(PATH_RECIPES).build();
         Uri StepUri = RecipeContract.BASE_URI.buildUpon().appendPath(PATH_STEPS).build();
         Uri IngredientUri = RecipeContract.BASE_URI.buildUpon().appendPath(PATH_INGREDIENTS).build();
-        mContext.getContentResolver().delete(RecipeUri, null, null);
-        mContext.getContentResolver().delete(StepUri, null, null);
-        mContext.getContentResolver().delete(IngredientUri, null, null);
-        for (Recipe recipe :
-                data) {
-            int recipeId = insertRecipe(RecipeUri, recipe);
+//        mContext.getContentResolver().delete(RecipeUri, null, null);
+//        mContext.getContentResolver().delete(StepUri, null, null);
+//        mContext.getContentResolver().delete(IngredientUri, null, null);
+        Cursor cursor = mContext.getContentResolver().query(RecipeUri, null, null, null, null);
+        if (cursor == null || cursor.getCount() <= 0)
+            for (Recipe recipe :
+                    data) {
+                int recipeId = insertRecipe(RecipeUri, recipe);
 
-            insertSteps(StepUri, recipe, recipeId);
-            insertIngredients(IngredientUri, recipe, recipeId);
+                insertSteps(StepUri, recipe, recipeId);
+                insertIngredients(IngredientUri, recipe, recipeId);
 
-        }
+            }
+        cursor.close();
     }
 
     private void insertIngredients(Uri ingredientUri, Recipe recipe, int recipeId) {

@@ -12,4 +12,7 @@
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="server_error">Error occur while getting Recipe from Server</string>
+    <string name="empty_list">Empty list</string>
+    <string name="choose_your_favourite_recipe">Choose your favourite recipe</string>
+    <string name="recipe_key" translatable="false">recipe.key</string>
 </resources>

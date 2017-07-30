@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class RecipeWidgetProvider extends AppWidgetProvider {
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
+     public static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId, List<String> ingredients, String recipeName) {
 
         // Construct the RemoteViews object

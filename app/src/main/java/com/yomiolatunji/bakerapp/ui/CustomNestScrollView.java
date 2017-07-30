@@ -24,12 +24,10 @@ public class CustomNestScrollView extends NestedScrollView {
 
     @Override
     public void requestChildFocus(View child, View focused) {
-        //super.requestChildFocus(child, focused);
     }
 
     @Override
     protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
-        //return super.onRequestFocusInDescendants(direction, previouslyFocusedRect);
         return false;
     }
 }

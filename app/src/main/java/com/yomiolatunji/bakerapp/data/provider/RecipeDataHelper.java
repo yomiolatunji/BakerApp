@@ -14,7 +14,7 @@ import com.yomiolatunji.bakerapp.data.provider.RecipeContract.StepEntry;
 
 public class RecipeDataHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "recipe.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public RecipeDataHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -26,7 +26,8 @@ public class RecipeDataHelper extends SQLiteOpenHelper {
                 RecipeEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 RecipeEntry.COLUMN_RECIPE_NAME + " TEXT NOT NULL, " +
                 RecipeEntry.COLUMN_RECIPE_SERVINGS + " INTEGER, " +
-                RecipeEntry.COLUMN_RECIPE_IMAGE + " TEXT)";
+                RecipeEntry.COLUMN_RECIPE_IMAGE + " TEXT," +
+                " UNIQUE (" + RecipeEntry.COLUMN_RECIPE_NAME + ") ON CONFLICT REPLACE);";
         db.execSQL(createRecipeTableSql);
 
         String createIngredientTableSql = "CREATE TABLE " + IngredientsEntry.TABLE_NAME + " ( " +
@@ -35,8 +36,10 @@ public class RecipeDataHelper extends SQLiteOpenHelper {
                 IngredientsEntry.COLUMN_MEASURE + " TEXT, " +
                 IngredientsEntry.COLUMN_QUANTITY + " INTEGER, " +
                 IngredientsEntry.COLUMN_RECIPE_ID + " INTEGER, " +
-                "FOREIGN KEY (" + IngredientsEntry.COLUMN_RECIPE_ID + ") REFERENCES " +
-                RecipeEntry.TABLE_NAME + " (" + RecipeEntry._ID + ") ) ";
+                " FOREIGN KEY (" + IngredientsEntry.COLUMN_RECIPE_ID + ") REFERENCES " +
+                RecipeEntry.TABLE_NAME + " (" + RecipeEntry._ID + ") , " +
+                " UNIQUE (" + IngredientsEntry.COLUMN_RECIPE_ID + ", " +
+                IngredientsEntry.COLUMN_INGREDIENT + ") ON CONFLICT REPLACE);";
         db.execSQL(createIngredientTableSql);
 
         String createStepTableSql = "CREATE TABLE " + StepEntry.TABLE_NAME + " ( " +
@@ -48,7 +51,9 @@ public class RecipeDataHelper extends SQLiteOpenHelper {
                 StepEntry.COLUMN_THUMBNAIL_URL + " TEXT, " +
                 StepEntry.COLUMN_VIDEO_URL + " TEXT, " +
                 "FOREIGN KEY (" + StepEntry.COLUMN_RECIPE_ID + ") REFERENCES " +
-                RecipeEntry.TABLE_NAME + " (" + RecipeEntry._ID + ") ) ";
+                RecipeEntry.TABLE_NAME + " (" + RecipeEntry._ID + ") , " +
+                " UNIQUE (" + StepEntry.COLUMN_RECIPE_ID + ", " +
+                StepEntry.COLUMN_SHORT_DESCRIPTION + ") ON CONFLICT REPLACE);";
         db.execSQL(createStepTableSql);
 
     }

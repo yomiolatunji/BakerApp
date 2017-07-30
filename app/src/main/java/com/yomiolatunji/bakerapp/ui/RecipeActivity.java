@@ -2,7 +2,6 @@ package com.yomiolatunji.bakerapp.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -65,11 +64,12 @@ public class RecipeActivity extends AppCompatActivity implements DataLoadingCall
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getIdlingResource();
 
         ingredientTextView = (TextView) findViewById(R.id.item_recipe_ingredient);
         stepRecyclerView = (RecyclerView) findViewById(R.id.item_recipe_step);
-        scrollView= (NestedScrollView) findViewById(R.id.container);
+        scrollView = (NestedScrollView) findViewById(R.id.container);
 
         stepRecyclerView.setNestedScrollingEnabled(false);
         Intent intent = getIntent();
@@ -83,7 +83,6 @@ public class RecipeActivity extends AppCompatActivity implements DataLoadingCall
             mTwoPane = true;
         }
 
-        //ingredientTextView.setLayoutManager(new LinearLayoutManager(RecipeActivity.this));
         stepRecyclerView.setLayoutManager(new LinearLayoutManager(RecipeActivity.this));
         if (recipe != null)
             initializeAdapters();
@@ -100,9 +99,6 @@ public class RecipeActivity extends AppCompatActivity implements DataLoadingCall
     }
 
     private void initializeAdapters() {
-//        IngredientAdapter ingredientAdapter = new IngredientAdapter(RecipeActivity.this);
-//        ingredientTextView.setAdapter(ingredientAdapter);
-//        ingredientAdapter.addAndResort(recipe.getIngredients());
         ingredientTextView.setText(getIngredientsString(recipe.getIngredients()));
         StepsAdapter stepsAdapter = new StepsAdapter(RecipeActivity.this, new StepsAdapter.OnClickStepListener() {
             @Override
@@ -129,10 +125,8 @@ public class RecipeActivity extends AppCompatActivity implements DataLoadingCall
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
-//            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT);
-//            stepRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
             final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
-            if(position != null)
+            if (position != null)
                 scrollView.post(new Runnable() {
                     public void run() {
                         scrollView.scrollTo(position[0], position[1]);
@@ -145,9 +139,8 @@ public class RecipeActivity extends AppCompatActivity implements DataLoadingCall
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-//        outState.putParcelable(BUNDLE_RECYCLER_LAYOUT, stepRecyclerView.getLayoutManager().onSaveInstanceState());
         outState.putIntArray("ARTICLE_SCROLL_POSITION",
-                new int[]{ scrollView.getScrollX(), scrollView.getScrollY()});
+                new int[]{scrollView.getScrollX(), scrollView.getScrollY()});
     }
 
     @Override

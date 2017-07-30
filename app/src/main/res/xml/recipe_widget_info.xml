@@ -4,6 +4,7 @@
     android:initialLayout="@layout/recipe_widget"
     android:minHeight="40dp"
     android:minWidth="110dp"
+    android:configure="com.yomiolatunji.bakerapp.ui.FavouriteRecipeWidgetConfiguration"
     android:previewImage="@drawable/example_appwidget_preview"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="86400000"
