@@ -42,7 +42,7 @@ public class FavouriteRecipeWidgetAdapter extends RecyclerView.Adapter<Favourite
 
     @Override
     public void onBindViewHolder(final FavouriteRecipeWidgetAdapter.RecipeHolder holder, int position) {
-        VectorDrawableCompat vectorDrawableCompat = VectorDrawableCompat.create(activity.getResources(), R.drawable.ic_featured_play_list, null);
+        VectorDrawableCompat vectorDrawableCompat = VectorDrawableCompat.create(activity.getResources(), R.drawable.ic_baking_tools, null);
         final Recipe recipe = getItem(position);
         if (!TextUtils.isEmpty(recipe.getImage()))
             Picasso.with(activity)
@@ -52,7 +52,7 @@ public class FavouriteRecipeWidgetAdapter extends RecyclerView.Adapter<Favourite
                     .fit()
                     .into(holder.image);
         else
-            holder.image.setImageResource(R.drawable.ic_featured_play_list);
+            holder.image.setImageResource(R.drawable.ic_baking_tools);
         holder.name.setText(recipe.getName());
         holder.servings.setText("Servings: " + recipe.getServings());
         holder.recipe = recipe;
